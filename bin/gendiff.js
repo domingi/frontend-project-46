@@ -1,15 +1,8 @@
-#!/usr/bin/env node
+import { getDiff, convertFileToObj, generateStr } from '../src/cli.js';
 
-import { Command } from 'commander';
-const program = new Command();
-
-program
-    .description('Compares two configuration files and shows a difference.')
-    .option('-V, --version', 'output the version number')
-    .option('-f, --format <type>', 'output format')
-    .argument('<filepath1>', 'the path to original file')
-    .argument('<filepath2>', 'the path to file to compare');
-
-program.parse();
-
-
+export default (filepath1, filepath2) => {
+  const obj1 = convertFileToObj(filepath1);
+  const obj2 = convertFileToObj(filepath2);
+  const diff = getDiff(obj1, obj2);
+  return generateStr(diff, filepath1, filepath2);
+};

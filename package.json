@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Compares two files and shows a difference.",
   "type": "module",
-  "main": "index.js",
+  "main": "bin/gendiff.js",
   "bin": {
     "gendiff": "/gendiff.js"
   },
@@ -13,6 +13,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "commander": "^10.0.0"
+    "commander": "^10.0.0",
+    "eslint": "^8.35.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jest": "^27.2.1",
+    "lodash": "^4.17.21"
   }
 }
