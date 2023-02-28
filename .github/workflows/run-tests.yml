@@ -5,4 +5,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: linter check
-        run: make lint
+        run: npx eslint .
