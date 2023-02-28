@@ -1,6 +1,8 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/domingi/frontend-project-46/workflows/hexlet-check/badge.svg)](https://github.com/domingi/frontend-project-46/actions)
 [![Maintainability](https://api.codeclimate.com/v1/badges/bcca637a06e1791ccf6e/maintainability)](https://codeclimate.com/github/domingi/frontend-project-46/maintainability)
+![Actions run-tests status](https://github.com/domingi/frontend-project-46/actions/workflows/run-tests.yml/badge.svg)
+
 
 # genDiff
 
