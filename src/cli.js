@@ -38,8 +38,8 @@ const convertFileToObj = (filepath, type = 'json') => {
 };
 
 const generateStr = (diff, filepath1, filepath2) => {
-  console.log(`gendiff ${filepath1} ${filepath2}\n`);
-  console.log(`{\n${diff}\n}`);
+  const str = `gendiff ${filepath1} ${filepath2}\n{\n${diff}\n}`;
+  return str;
 };
 
 export {
