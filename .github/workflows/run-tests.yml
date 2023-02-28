@@ -4,5 +4,8 @@ jobs:
   deploy-cheking:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: linter check
-        run: npx eslint .
+        run: make lint
+      - name: run test
+        run: make test
