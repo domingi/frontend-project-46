@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import _ from 'lodash';
 
 const getDiff = (obj1, obj2) => {
@@ -27,16 +26,6 @@ const getDiff = (obj1, obj2) => {
   return result.join('\n');
 };
 
-const convertFileToObj = (filepath, type = 'json') => {
-  const normalizedType = type.toLowerCase();
-  switch (normalizedType) {
-    case 'json':
-      return JSON.parse(readFileSync(filepath));
-    default:
-      return console.log(`Type ${type} not supported`);
-  }
-};
-
 const generateStr = (diff, filepath1, filepath2) => {
   const str = `gendiff ${filepath1} ${filepath2}\n{\n${diff}\n}`;
   return str;
@@ -44,6 +33,5 @@ const generateStr = (diff, filepath1, filepath2) => {
 
 export {
   getDiff,
-  convertFileToObj,
   generateStr,
 };
