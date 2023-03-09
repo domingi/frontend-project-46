@@ -1,4 +1,13 @@
 import _ from 'lodash';
+import path from 'node:path';
+
+const objToString = (obj) => {
+  const result = Object.entries(obj).reduce((str, [key, value]) => {
+    if (_.isObject(value)) return `${str}${key}: ${objToString(value)}\n`;
+    return `${str}${key}: ${value}\n`;
+  }, '');
+  return `{\n${result}}`;
+};
 
 const getDiff = (obj1, obj2) => {
   const commonKeys = _.union(Object.keys(obj1), Object.keys(obj2));
@@ -7,77 +16,50 @@ const getDiff = (obj1, obj2) => {
   const diff = keys.reduce((acc, key) => {
     if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
       const objDiff = getDiff(obj1[key], obj2[key]);
-      acc.push(`${key}:{\n${objDiff}\n}`);
+      acc.push(`${key}: {\n${objDiff}\n}`);
       return acc;
     }
 
     if (_.isObject(obj1[key]) && !_.isObject(obj2[key])) {
-      const objToStr = obj1[key].toString();
-      acc.push(`${key}:{\n${objToStr}\n}`);
+      acc.push(`- ${key}: ${objToString(obj1[key])}`);
+      if (_.has(obj2, key)) acc.push(`+ ${key}: ${obj2[key]}`);
       return acc;
     }
 
     if (!_.isObject(obj1[key]) && _.isObject(obj2[key])) {
-      const objToStr = obj2[key].toString();
-      acc.push(`${key}:{\n${objToStr}\n}`);
+      acc.push(`+ ${key}: ${objToString(obj2[key])}`);
       return acc;
     }
 
     const keyValueObj1 = `${key}: ${obj1[key]}`;
     const keyValueObj2 = `${key}: ${obj2[key]}`;
     if (!Object.hasOwn(obj1, key)) {
-      acc.push(`  + ${keyValueObj2}`);
+      acc.push(`+ ${keyValueObj2}`);
       return acc;
     }
     if (!Object.hasOwn(obj2, key)) {
-      acc.push(`  - ${keyValueObj1}`);
+      acc.push(`- ${keyValueObj1}`);
       return acc;
     }
     if (obj1[key] === obj2[key]) {
-      acc.push(`    ${keyValueObj1}`);
+      acc.push(`${keyValueObj1}`);
       return acc;
     }
-    acc.push(`  - ${keyValueObj1}`);
-    acc.push(`  + ${keyValueObj2}`);
+    acc.push(`- ${keyValueObj1}`);
+    acc.push(`+ ${keyValueObj2}`);
     return acc;
   }, []);
   return diff.join('\n');
 };
 
-const generateStr = (diff, filepath1, filepath2) => {
-  const str = `gendiff ${filepath1} ${filepath2}\n{\n${diff}\n}`;
+const diffWithDescription = (diff, filepath1, filepath2) => {
+  const fileName1 = path.basename(filepath1);
+  const fileName2 = path.basename(filepath2);
+  const str = `gendiff ${fileName1} ${fileName2}\n\n${diff}`;
   return str;
 };
 
 export {
   getDiff,
-  generateStr,
+  diffWithDescription,
 };
-
-/*
-const getDiff = (obj1, obj2) => {
-  const commonKeys = _.union(Object.keys(obj1), Object.keys(obj2));
-  const keys = _.uniq(commonKeys).sort();
-
-  const result = keys.reduce((acc, key) => {
-    const keyValueObj1 = `${key}: ${obj1[key]}`;
-    const keyValueObj2 = `${key}: ${obj2[key]}`;
-    if (!Object.hasOwn(obj1, key)) {
-      acc.push(`  + ${keyValueObj2}`);
-      return acc;
-    }
-    if (!Object.hasOwn(obj2, key)) {
-      acc.push(`  - ${keyValueObj1}`);
-      return acc;
-    }
-    if (obj1[key] === obj2[key]) {
-      acc.push(`    ${keyValueObj1}`);
-      return acc;
-    }
-    acc.push(`  - ${keyValueObj1}`);
-    acc.push(`  + ${keyValueObj2}`);
-    return acc;
-  }, []);
-  return result.join('\n');
-};
-*/

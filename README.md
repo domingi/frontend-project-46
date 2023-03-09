@@ -19,7 +19,7 @@ Supported formats:
 gendiff filepath1 filepath2
 ```
 JSON format
-[![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex)
+[![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/0wuE2f5fz8GKg3DvVlNpbc0bu)
 
 YAML format
-[![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/tYHeViIv9z7T1eIuE0PH3vRYR)
+[![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/1wSKYoetm4GXFW5nKWTnh8P1D)
