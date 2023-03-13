@@ -52,10 +52,11 @@ const getDiff = (obj1, obj2) => {
   return diff.join('\n');
 };
 
-const diffWithDescription = (diff, filepath1, filepath2) => {
+const diffWithDescription = (diff, filepath1, filepath2, formatName = '') => {
   const fileName1 = path.basename(filepath1);
   const fileName2 = path.basename(filepath2);
-  const str = `gendiff ${fileName1} ${fileName2}\n\n${diff}`;
+  const formatter = formatName === '' ? formatName : `--format ${formatName} `;
+  const str = `gendiff ${formatter}${fileName1} ${fileName2}\n\n${diff}`;
   return str;
 };
 

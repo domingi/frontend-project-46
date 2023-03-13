@@ -23,3 +23,10 @@ JSON format
 
 YAML format
 [![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/1wSKYoetm4GXFW5nKWTnh8P1D)
+
+### Change format
+You can choose format of result diff with option `--type plain`
+```shell
+gendiff filepath1 filepath2 --type plain
+```
+[![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/owdIwgAwbvc24k3FalJyWzE71)
