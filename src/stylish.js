@@ -19,4 +19,11 @@ const stylish = (diff, replacerSymbol = ' ') => {
   return result.join('\n');
 };
 
-export default stylish;
+const stylishPlainDiff = (formattedDiff) => formattedDiff
+  .flatMap((str) => _.replace(str, 'object Object', 'complex value'))
+  .join('\n');
+
+export {
+  stylish,
+  stylishPlainDiff,
+};

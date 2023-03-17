@@ -1,66 +1,57 @@
 import _ from 'lodash';
-import path from 'node:path';
 
-const objToString = (obj) => {
-  const result = Object.entries(obj).reduce((str, [key, value]) => {
-    if (_.isObject(value)) return `${str}${key}: ${objToString(value)}\n`;
-    return `${str}${key}: ${value}\n`;
-  }, '');
-  return `{\n${result}}`;
-};
-
-const getDiff = (obj1, obj2) => {
+let property = [];
+const makeDiffTree = (obj1, obj2) => {
   const commonKeys = _.union(Object.keys(obj1), Object.keys(obj2));
   const keys = _.uniq(commonKeys).sort();
 
   const diff = keys.reduce((acc, key) => {
+    property = [...property, key];
+
     if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
-      const objDiff = getDiff(obj1[key], obj2[key]);
-      acc.push(`${key}: {\n${objDiff}\n}`);
+      const node = {
+        type: 'unchanged', key, value: obj1[key], property, children: makeDiffTree(obj1[key], obj2[key]),
+      };
+      acc.push(node);
+      property = _.slice(property, 0, -1);
       return acc;
     }
 
-    if (_.isObject(obj1[key]) && !_.isObject(obj2[key])) {
-      acc.push(`- ${key}: ${objToString(obj1[key])}`);
-      if (_.has(obj2, key)) acc.push(`+ ${key}: ${obj2[key]}`);
+    if (!_.has(obj1, key) && _.has(obj2, key)) {
+      const leaf = {
+        type: 'added', key, value: obj2[key], property, children: null,
+      };
+      acc.push(leaf);
+      property = _.slice(property, 0, -1);
       return acc;
     }
 
-    if (!_.isObject(obj1[key]) && _.isObject(obj2[key])) {
-      acc.push(`+ ${key}: ${objToString(obj2[key])}`);
+    if (_.has(obj1, key) && !_.has(obj2, key)) {
+      const leaf = {
+        type: 'removed', key, value: obj1[key], property, children: null,
+      };
+      acc.push(leaf);
+      property = _.slice(property, 0, -1);
       return acc;
     }
 
-    const keyValueObj1 = `${key}: ${obj1[key]}`;
-    const keyValueObj2 = `${key}: ${obj2[key]}`;
-    if (!Object.hasOwn(obj1, key)) {
-      acc.push(`+ ${keyValueObj2}`);
-      return acc;
-    }
-    if (!Object.hasOwn(obj2, key)) {
-      acc.push(`- ${keyValueObj1}`);
-      return acc;
-    }
     if (obj1[key] === obj2[key]) {
-      acc.push(`${keyValueObj1}`);
+      const leaf = {
+        type: 'unchanged', key, value: obj1[key], property, children: null,
+      };
+      acc.push(leaf);
+      property = _.slice(property, 0, -1);
       return acc;
     }
-    acc.push(`- ${keyValueObj1}`);
-    acc.push(`+ ${keyValueObj2}`);
+
+    const leaf = {
+      type: 'modified', key, value: obj1[key], valueNew: obj2[key], property, children: null,
+    };
+    acc.push(leaf);
+    property = _.slice(property, 0, -1);
     return acc;
   }, []);
-  return diff.join('\n');
+  return diff;
 };
 
-const diffWithDescription = (diff, filepath1, filepath2, formatName = '') => {
-  const fileName1 = path.basename(filepath1);
-  const fileName2 = path.basename(filepath2);
-  const formatter = formatName === '' ? formatName : `--format ${formatName} `;
-  const str = `gendiff ${formatter}${fileName1} ${fileName2}\n\n${diff}`;
-  return str;
-};
-
-export {
-  getDiff,
-  diffWithDescription,
-};
+export default makeDiffTree;

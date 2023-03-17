@@ -1,112 +1,98 @@
-const getKey = (str) => {
-  const [split] = str.split(':');
-  if (split.includes('+') || str.includes('-')) return split.slice(2);
-  return split;
+import _ from 'lodash';
+import { stylishPlainDiff, stylish } from '../src/stylish.js';
+
+const objToString = (obj) => {
+  const result = Object.entries(obj).reduce((str, [key, value]) => {
+    if (_.isObject(value)) return `${str}${key}: ${objToString(value)}\n`;
+    return `${str}${key}: ${value}\n`;
+  }, '');
+  return `{\n${result}}`;
 };
 
-const getValue = (str) => {
-  const [, value] = str.split(':');
-  const normalizeValue = value.trim();
-  switch (normalizeValue) {
-    case 'null':
-      return null;
-    case 'true':
-      return true;
-    case 'false':
-      return false;
-    case '[complex value]':
-      return '[complex value]';
-    default:
-      return `'${normalizeValue}'`;
-  }
-};
+const getType = (node) => node.type;
+const getKey = (node) => node.key;
+const getValue = (node) => (
+  _.isObject(node.value) ? objToString(node.value) : node.value
+);
+const getNewValue = (node) => (
+  _.isObject(node.valueNew) ? objToString(node.valueNew) : node.valueNew
+);
+const getProperty = (node) => `'${node.property.join('.')}'`;
+const getChildren = (node) => node.children;
 
-const encreasePath = (path, str) => {
-  if (path.length === 0) return getKey(str);
-  return `${path}.${getKey(str)}`;
-};
-
-const decreasePath = (path) => {
-  const arr = path.split('.');
-  return arr
-    .slice(0, arr.length - 1)
-    .join('.');
-};
-
-const diffWithReplacedValues = (diff) => {
-  const splitDiff = diff.split('\n');
-  let counter = 0;
-  let canAddStr = true;
-
-  const result = splitDiff.reduce((acc, str) => {
-    if (str.includes('{') && str.includes('+')) {
-      const expression = `${str.slice(0, str.length - 2)} [complex value]`;
-      acc.push(expression);
-      canAddStr = false;
-      counter += 1;
+const formatterTree = (diffTree) => {
+  const result = diffTree.reduce((acc, node) => {
+    if (getChildren(node) !== null) {
+      const expression = formatterTree(getChildren(node));
+      acc.push(`${getKey(node)}: {\n${expression}\n}`);
       return acc;
     }
-    if (str.includes('{') && str.includes('-')) {
-      const expression = `${str.slice(0, str.length - 2)} [complex value]`;
-      acc.push(expression);
-      canAddStr = false;
-      counter += 1;
-      return acc;
-    }
-    if (counter === 0) canAddStr = true;
-    if (!canAddStr && str.includes('{')) counter += 1;
-    if (!canAddStr && str.includes('}')) counter -= 1;
 
-    if (canAddStr) acc.push(str);
+    if (getType(node) === 'removed') {
+      const expression = `- ${getKey(node)}: ${getValue(node)}`;
+      acc.push(expression);
+    }
+
+    if (getType(node) === 'added') {
+      const expression = `+ ${getKey(node)}: ${getValue(node)}`;
+      acc.push(expression);
+    }
+
+    if (getType(node) === 'modified') {
+      const expression = `- ${getKey(node)}: ${getValue(node)}\n+ ${getKey(node)}: ${getNewValue(node)}`;
+      acc.push(expression);
+    }
+
+    if (getType(node) === 'unchanged') {
+      const expression = `${getKey(node)}: ${getValue(node)}`;
+      acc.push(expression);
+    }
+    return acc;
+  }, []);
+  return result.join('\n');
+};
+
+const getStylizeValue = (node) => (_.isString(node.value) ? `'${node.value}'` : node.value);
+const getStylizeValueNew = (node) => (_.isString(node.valueNew) ? `'${node.valueNew}'` : node.valueNew);
+
+const formatterPlain = (diffTree) => {
+  const result = diffTree.reduce((acc, node) => {
+    if (getChildren(node) !== null) {
+      const expression = formatterPlain(getChildren(node));
+      acc.push(expression);
+      return acc.flat();
+    }
+
+    if (getType(node) === 'removed') {
+      const expression = `Property ${getProperty(node)} was removed`;
+      acc.push(expression);
+    }
+
+    if (getType(node) === 'added') {
+      const expression = `Property ${getProperty(node)} was added with value: ${getStylizeValue(node)}`;
+      acc.push(expression);
+    }
+
+    if (getType(node) === 'modified') {
+      const expression = `Property ${getProperty(node)} was updated. From ${getStylizeValue(node)} to ${getStylizeValueNew(node)}`;
+      acc.push(expression);
+    }
     return acc;
   }, []);
   return result;
 };
 
-const formatterPlain = (diff) => {
-  const normalizedDiff = diffWithReplacedValues(diff);
+const formatterJson = (diffTree) => JSON.stringify(diffTree, null, '');
 
-  let path = '';
-  let wasUpdated = false;
-  let lastValue;
-
-  const result = normalizedDiff.reduce((acc, str, index) => {
-    if (str.includes('{') && !str.includes('+') && !str.includes('-')) path = encreasePath(path, str);
-    if (str.includes('}')) path = decreasePath(path);
-
-    if (wasUpdated) {
-      path = encreasePath(path, str);
-      const expression = `Property '${path}' was updated. From ${lastValue} to ${getValue(str)}`;
-      acc.push(expression);
-      path = decreasePath(path);
-      wasUpdated = false;
-      return acc;
-    }
-
-    if (str.includes('+')) {
-      path = encreasePath(path, str);
-      const expression = `Property '${path}' was added with value: ${getValue(str)}`;
-      acc.push(expression);
-      path = decreasePath(path);
-      return acc;
-    }
-    if (str.includes('-')) {
-      if (getKey(str) === getKey(normalizedDiff[index + 1])) {
-        wasUpdated = true;
-        lastValue = getValue(str);
-        return acc;
-      }
-      path = encreasePath(path, str);
-      const expression = `Property '${path}' was removed`;
-      acc.push(expression);
-      path = decreasePath(path);
-      return acc;
-    }
-
-    return acc;
-  }, []);
-
-  return result.join('\n');
+const formatter = (diffTree, formatName) => {
+  switch (formatName) {
+    case 'plain':
+      return stylishPlainDiff(formatterPlain(diffTree));
+    case 'json':
+      return formatterJson(diffTree);
+    default:
+      return stylish(formatterTree(diffTree));
+  }
 };
 
-export default formatterPlain;
+export default formatter;

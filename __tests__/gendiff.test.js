@@ -8,27 +8,31 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const getFixturePath = (filename) => path.join(__dirname, '__fixtures__', filename);
 
-const expectedDiffJson = readFileSync(getFixturePath('expected/expected-json.txt'), 'utf-8');
-const expectedDiffYaml = readFileSync(getFixturePath('expected/expected-yaml.txt'), 'utf-8');
-const expectedDiffPlainJson = readFileSync(getFixturePath('expected/expected-plain-json.txt'), 'utf-8');
-const expectedDiffPlainYaml = readFileSync(getFixturePath('expected/expected-plain-json.txt'), 'utf-8');
+const expectedDiff = readFileSync(getFixturePath('expected/expected.txt'), 'utf-8');
+const expectedDiffPlain = readFileSync(getFixturePath('expected/expected-plain.txt'), 'utf-8');
+const expectedDiffJson = readFileSync(getFixturePath('expected/expected.json'), 'utf-8');
 
 test('compare two file, type: JSON', () => {
   const diff = genDiff(getFixturePath('file1.json'), getFixturePath('file2.json'));
-  expect(diff).toBe(expectedDiffJson);
+  expect(diff).toBe(expectedDiff);
 });
 
 test('compare two file, type: YAML', () => {
   const diff = genDiff(getFixturePath('file1.yaml'), getFixturePath('file2.yaml'));
-  expect(diff).toBe(expectedDiffYaml);
+  expect(diff).toBe(expectedDiff);
 });
 
 test('compare two file, format: plain, type: JSON', () => {
   const diff = genDiff(getFixturePath('file1.json'), getFixturePath('file2.json'), 'plain');
-  expect(diff).toBe(expectedDiffPlainJson);
+  expect(diff).toBe(expectedDiffPlain);
 });
 
 test('compare two file, format: plain, type: YAML', () => {
   const diff = genDiff(getFixturePath('file1.json'), getFixturePath('file2.json'), 'plain');
-  expect(diff).toBe(expectedDiffPlainYaml);
+  expect(diff).toBe(expectedDiffPlain);
+});
+
+test('compare two file, format: json, type: JSON', () => {
+  const diff = genDiff(getFixturePath('file1.json'), getFixturePath('file2.json'), 'json');
+  expect(diff).toBe(expectedDiffJson);
 });
