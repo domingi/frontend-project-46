@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 let property = [];
-const makeDiffTree = (obj1, obj2) => {
+const genDiffTree = (obj1, obj2) => {
   const commonKeys = _.union(Object.keys(obj1), Object.keys(obj2));
   const keys = _.uniq(commonKeys).sort();
 
@@ -10,7 +10,7 @@ const makeDiffTree = (obj1, obj2) => {
 
     if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
       const node = {
-        type: 'unchanged', key, value: obj1[key], property, children: makeDiffTree(obj1[key], obj2[key]),
+        type: 'unchanged', key, value: obj1[key], property, children: genDiffTree(obj1[key], obj2[key]),
       };
       acc.push(node);
       property = _.slice(property, 0, -1);
@@ -54,4 +54,4 @@ const makeDiffTree = (obj1, obj2) => {
   return diff;
 };
 
-export default makeDiffTree;
+export default genDiffTree;

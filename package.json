@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Compares two files and shows a difference.",
   "type": "module",
-  "main": "bin/gendiff.js",
+  "main": "src/index.js",
   "bin": {
-    "gendiff": "/gendiff.js"
+    "gendiff": "bin/gendiff.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

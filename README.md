@@ -23,9 +23,11 @@ npm install github:domingi/frontend-project-46
 
 ### CLI
 The basic interface is:
+
 ```shell
 gendiff filepath1 filepath2
 ```
+
 JSON format
 [![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/0wuE2f5fz8GKg3DvVlNpbc0bu)
 
@@ -33,16 +35,23 @@ YAML format
 [![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/1wSKYoetm4GXFW5nKWTnh8P1D)
 
 Change format
+
 You can choose other format of result diff with option `--type`:
+- `stylish` default value. Show classic diff
 - `plain` to show plain diff
 - `json` to show json string
+
 ```shell
 gendiff filepath1 filepath2 --type plain
 ```
+
 [![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/owdIwgAwbvc24k3FalJyWzE71)
 [![asciicast](https://asciinema.org/a/k355AIGo3A55jwvnKgkY3BGex.svg)](https://asciinema.org/a/LBpfk42IPuraaRboglG8g75Dt)
 
 ### ES6
+
+How to use:
+
 ```js
 const diff = genDiff(filepath1, filepath2, [formatName]);
 ```

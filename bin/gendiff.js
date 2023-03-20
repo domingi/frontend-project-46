@@ -1,10 +1,18 @@
-import parser from '../src/parsers.js';
-import formatter from '../formatters/index.js';
-import makeDiffTree from '../src/cli.js';
+#!/usr/bin/env node
 
-export default (filepath1, filepath2, formatName = null) => {
-  const obj1 = parser(filepath1);
-  const obj2 = parser(filepath2);
-  const diffTree = makeDiffTree(obj1, obj2);
-  return formatter(diffTree, formatName);
-};
+import { Command } from 'commander';
+import genDiff from '../src/index.js';
+
+const program = new Command();
+
+program
+  .description('Compares two configuration files and shows a difference.')
+  .option('-f, --format <type>', 'output format')
+  .argument('<filepath1>')
+  .argument('<filepath2>')
+  .action((filepath1, filepath2, options) => {
+    console.log(genDiff(filepath1, filepath2, options.format));
+  });
+
+program.version('1.0.0');
+program.parse();
