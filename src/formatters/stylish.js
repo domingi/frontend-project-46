@@ -22,28 +22,27 @@ const makeStylishDiff = (diffTree) => {
   const result = diffTree.reduce((acc, node) => {
     if (getChildren(node) !== null) {
       const expression = makeStylishDiff(getChildren(node));
-      acc.push(`${getKey(node)}: {\n${expression}\n}`);
-      return acc;
+      return [...acc, `${getKey(node)}: {\n${expression}\n}`];
     }
 
     if (getType(node) === 'removed') {
       const expression = `- ${getKey(node)}: ${getValue(node)}`;
-      acc.push(expression);
+      return [...acc, expression];
     }
 
     if (getType(node) === 'added') {
       const expression = `+ ${getKey(node)}: ${getValue(node)}`;
-      acc.push(expression);
+      return [...acc, expression];
     }
 
     if (getType(node) === 'modified') {
       const expression = `- ${getKey(node)}: ${getValue(node)}\n+ ${getKey(node)}: ${getNewValue(node)}`;
-      acc.push(expression);
+      return [...acc, expression];
     }
 
     if (getType(node) === 'unchanged') {
       const expression = `${getKey(node)}: ${getValue(node)}`;
-      acc.push(expression);
+      return [...acc, expression];
     }
     return acc;
   }, []);
@@ -60,10 +59,11 @@ const stylish = (diffTree, replacerSymbol = ' ') => {
     if (str.includes('-') || str.includes('+')) leftShift = 2;
     if (str.includes('}')) depth -= 1;
     const replacer = _.repeat(replacerSymbol, depth * 4 - leftShift);
-    acc.push(`${replacer}${str}`);
+
     if (str.includes('{')) depth += 1;
     leftShift = 0;
-    return acc;
+
+    return [...acc, `${replacer}${str}`];
   }, []);
 
   return result.join('\n');

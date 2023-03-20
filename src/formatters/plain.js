@@ -14,23 +14,22 @@ const plain = (diffTree) => {
   const result = diffTree.reduce((acc, node) => {
     if (getChildren(node) !== null) {
       const expression = plain(getChildren(node));
-      acc.push(expression);
-      return acc.flat();
+      return [...acc, expression];
     }
 
     if (getType(node) === 'removed') {
       const expression = `Property ${getProperty(node)} was removed`;
-      acc.push(expression);
+      return [...acc, expression];
     }
 
     if (getType(node) === 'added') {
       const expression = `Property ${getProperty(node)} was added with value: ${getStylizeValue(node)}`;
-      acc.push(expression);
+      return [...acc, expression];
     }
 
     if (getType(node) === 'modified') {
       const expression = `Property ${getProperty(node)} was updated. From ${getStylizeValue(node)} to ${getStylizeValueNew(node)}`;
-      acc.push(expression);
+      return [...acc, expression];
     }
     return acc;
   }, []);
