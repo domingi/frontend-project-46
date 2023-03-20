@@ -60,7 +60,7 @@ const stylish = (diffTree, replacerSymbol = ' ') => {
     if (str.includes('-') || str.includes('+')) leftShift = 2;
     if (str.includes('}')) depth -= 1;
     const replacer = _.repeat(replacerSymbol, depth * 4 - leftShift);
-    acc.push(`${replacer}${str.trimEnd()}`);
+    acc.push(`${replacer}${str}`);
     if (str.includes('{')) depth += 1;
     leftShift = 0;
     return acc;
