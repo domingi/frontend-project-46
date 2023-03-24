@@ -33,7 +33,7 @@ test('compare two file, format: plain, type: JSON', () => {
 });
 
 test('compare two file, format: plain, type: YAML', () => {
-  const diff = genDiff(getFixturePath('file1.json'), getFixturePath('file2.json'), 'plain');
+  const diff = genDiff(getFixturePath('file1.yaml'), getFixturePath('file2.yaml'), 'plain');
   expect(diff).toBe(expectedDiffPlain);
 });
 

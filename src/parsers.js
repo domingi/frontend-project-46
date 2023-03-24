@@ -1,16 +1,14 @@
-import { readFileSync } from 'node:fs';
 import yaml from 'js-yaml';
 
-const parser = (filepath, type) => {
+const parser = (data, type) => {
   switch (type) {
     case '.json':
-      return JSON.parse(readFileSync(filepath));
+      return JSON.parse(data);
     case '.yaml':
-      return yaml.load(readFileSync(filepath));
     case '.yml':
-      return yaml.load(readFileSync(filepath));
+      return yaml.load(data);
     default:
-      return console.log(`Type ${type} not supported`);
+      throw new Error(`Type ${type} not supported`);
   }
 };
 
