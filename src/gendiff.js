@@ -8,9 +8,8 @@ const genDiffTree = (obj1, obj2) => {
     property = [...property, key];
 
     if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
-      const children = genDiffTree(obj1[key], obj2[key]);
       const node = {
-        type: 'unchanged', key, value: children, property, children,
+        type: 'unchanged', key, property, children: genDiffTree(obj1[key], obj2[key]),
       };
       property = _.slice(property, 0, -1);
       return node;
