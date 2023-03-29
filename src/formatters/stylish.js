@@ -3,7 +3,6 @@ import {
   getType, getKey, getChildren,
 } from './tools.js';
 
-const getDepth = (node) => node.property.length;
 const getSpaces = (depth) => (_.repeat(' ', depth * 4));
 
 const prettifyValue = (value, depth) => {
@@ -17,8 +16,7 @@ const prettifyValue = (value, depth) => {
   return prettyValue.join('\n');
 };
 
-const getValue = (node, valueType) => {
-  const depth = getDepth(node);
+const getValue = (node, depth, valueType) => {
   switch (valueType) {
     case 'common':
       return _.isObject(node.value) ? `{\n${prettifyValue(node.value, depth + 1)}\n${getSpaces(depth)}}` : node.value;
@@ -33,8 +31,7 @@ const getValue = (node, valueType) => {
   }
 };
 
-const getIndent = (node, type = 'unchanged') => {
-  const depth = getDepth(node);
+const getIndent = (node, depth, type = 'unchanged') => {
   const indent = _.repeat(' ', depth * 4 - 2);
   switch (type) {
     case 'added':
@@ -48,31 +45,31 @@ const getIndent = (node, type = 'unchanged') => {
   }
 };
 
-const stylish = (diffTree) => {
-  const iter = (data) => {
+const makeStylish = (diffTree) => {
+  const iter = (data, depth = 1) => {
     const result = data.map((node) => {
       if (getChildren(node) !== null) {
-        const expression = iter(getChildren(node));
-        return `${getIndent(node)}${getKey(node)}: {\n${expression}\n${getIndent(node)}}`;
+        const expression = iter(getChildren(node), depth + 1);
+        return `${getIndent(node, depth)}${getKey(node)}: {\n${expression}\n${getIndent(node, depth)}}`;
       }
 
       if (getType(node) === 'removed') {
-        const expression = `${getIndent(node, 'removed')}${getKey(node)}: ${getValue(node, 'common')}`;
+        const expression = `${getIndent(node, depth, 'removed')}${getKey(node)}: ${getValue(node, depth, 'common')}`;
         return expression;
       }
 
       if (getType(node) === 'added') {
-        const expression = `${getIndent(node, 'added')}${getKey(node)}: ${getValue(node, 'common')}`;
+        const expression = `${getIndent(node, depth, 'added')}${getKey(node)}: ${getValue(node, depth, 'common')}`;
         return expression;
       }
 
       if (getType(node) === 'modified') {
-        const expression = `${getIndent(node, 'removed')}${getKey(node)}: ${getValue(node, 'old')}\n${getIndent(node, 'added')}${getKey(node)}: ${getValue(node, 'new')}`;
+        const expression = `${getIndent(node, depth, 'removed')}${getKey(node)}: ${getValue(node, depth, 'old')}\n${getIndent(node, depth, 'added')}${getKey(node)}: ${getValue(node, depth, 'new')}`;
         return expression;
       }
 
       if (getType(node) === 'unchanged') {
-        const expression = `${getIndent(node)}${getKey(node)}: ${getValue(node, 'common')}`;
+        const expression = `${getIndent(node, depth)}${getKey(node)}: ${getValue(node, depth, 'common')}`;
         return expression;
       }
       return node;
@@ -82,4 +79,4 @@ const stylish = (diffTree) => {
   return `{\n${iter(diffTree)}\n}`;
 };
 
-export default stylish;
+export default makeStylish;

@@ -1,17 +1,16 @@
-import stylish from './stylish.js';
-import plain from './plain.js';
-import json from './json.js';
+import makeStylish from './stylish.js';
+import makePlain from './plain.js';
+import makeJson from './json.js';
 
 const formatter = (diffTree, formatName) => {
   switch (formatName) {
-    case 'stylish':
-      return stylish(diffTree);
     case 'plain':
-      return plain(diffTree);
+      return makePlain(diffTree);
     case 'json':
-      return json(diffTree);
+      return makeJson(diffTree);
+    case 'stylish':
     default:
-      return stylish(diffTree);
+      return makeStylish(diffTree);
   }
 };
 

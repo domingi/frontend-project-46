@@ -1,9 +1,7 @@
 import _ from 'lodash';
 import {
-  getType, getChildren,
+  getType, getChildren, getKey,
 } from './tools.js';
-
-const getProperty = (node) => `'${node.property.join('.')}'`;
 
 const getStylizeValue = (node, valueType) => {
   if (_.isString(node[valueType])) return `'${node[valueType]}'`;
@@ -11,22 +9,23 @@ const getStylizeValue = (node, valueType) => {
   return node[valueType];
 };
 
-const plain = (diffTree) => {
+const getProperty = (path, key) => (path.length > 0 ? `'${path.join('.')}.${key}'` : `'${key}'`);
+
+const makePlain = (diffTree, path = []) => {
   const result = diffTree.map((node) => {
     if (getChildren(node) !== null) {
-      return plain(getChildren(node));
+      return makePlain(getChildren(node), [...path, getKey(node)]);
     }
-
     if (getType(node) === 'removed') {
-      return `Property ${getProperty(node)} was removed`;
+      return `Property ${getProperty(path, getKey(node))} was removed`;
     }
 
     if (getType(node) === 'added') {
-      return `Property ${getProperty(node)} was added with value: ${getStylizeValue(node, 'value')}`;
+      return `Property ${getProperty(path, getKey(node))} was added with value: ${getStylizeValue(node, 'value')}`;
     }
 
     if (getType(node) === 'modified') {
-      return `Property ${getProperty(node)} was updated. From ${getStylizeValue(node, 'oldValue')} to ${getStylizeValue(node, 'newValue')}`;
+      return `Property ${getProperty(path, getKey(node))} was updated. From ${getStylizeValue(node, 'oldValue')} to ${getStylizeValue(node, 'newValue')}`;
     }
     return [];
   });
@@ -35,4 +34,4 @@ const plain = (diffTree) => {
     .join('\n');
 };
 
-export default plain;
+export default makePlain;
