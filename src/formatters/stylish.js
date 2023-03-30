@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import _ from 'lodash';
 import {
   getType, getKey, getChildren,
@@ -5,30 +6,34 @@ import {
 
 const getSpaces = (depth) => (_.repeat(' ', depth * 4));
 
-const prettifyValue = (value, depth) => {
-  const entries = Object.entries(value);
-  const prettyValue = entries.map(([key, val]) => {
-    if (_.isPlainObject(val)) {
-      return `${getSpaces(depth)}${key}: {\n${prettifyValue(val, depth + 1)}\n${getSpaces(depth)}}`;
+const getValue = (node, type, depth) => {
+  const takeValue = (node, type) => {
+    switch (type) {
+      case 'common':
+        return node.value;
+      case 'new':
+        return node.newValue;
+      case 'old':
+        return node.oldValue;
+      default:
+        throw new Error(`Undefined type of value ${type}`);
     }
-    return `${getSpaces(depth)}${key}: ${val}`;
-  });
-  return prettyValue.join('\n');
-};
+  };
 
-const getValue = (node, depth, valueType) => {
-  switch (valueType) {
-    case 'common':
-      return _.isObject(node.value) ? `{\n${prettifyValue(node.value, depth + 1)}\n${getSpaces(depth)}}` : node.value;
-    case 'old':
-      return _.isObject(node.oldValue)
-        ? `{\n${prettifyValue(node.oldValue, depth + 1)}\n${getSpaces(depth)}}` : node.oldValue;
-    case 'new':
-      return _.isObject(node.newValue)
-        ? `{\n${prettifyValue(node.newValue, depth + 1)}\n${getSpaces(depth)}}` : node.newValue;
-    default:
-      throw new Error(`Undefined type of value ${valueType}`);
-  }
+  const value = takeValue(node, type);
+
+  const valueToStr = (value, depth) => {
+    const entries = Object.entries(value);
+    const prettyValue = entries.map(([key, val]) => {
+      if (_.isPlainObject(val)) {
+        return `${getSpaces(depth)}${key}: {\n${valueToStr(val, depth + 1)}\n${getSpaces(depth)}}`;
+      }
+      return `${getSpaces(depth)}${key}: ${val}`;
+    });
+    return prettyValue.join('\n');
+  };
+
+  return _.isPlainObject(value) ? `{\n${valueToStr(value, depth + 1)}\n${getSpaces(depth)}}` : value;
 };
 
 const getIndent = (node, depth, type = 'unchanged') => {
@@ -54,23 +59,19 @@ const makeStylish = (diffTree) => {
       }
 
       if (getType(node) === 'removed') {
-        const expression = `${getIndent(node, depth, 'removed')}${getKey(node)}: ${getValue(node, depth, 'common')}`;
-        return expression;
+        return `${getIndent(node, depth, 'removed')}${getKey(node)}: ${getValue(node, 'common', depth)}`;
       }
 
       if (getType(node) === 'added') {
-        const expression = `${getIndent(node, depth, 'added')}${getKey(node)}: ${getValue(node, depth, 'common')}`;
-        return expression;
+        return `${getIndent(node, depth, 'added')}${getKey(node)}: ${getValue(node, 'common', depth)}`;
       }
 
       if (getType(node) === 'modified') {
-        const expression = `${getIndent(node, depth, 'removed')}${getKey(node)}: ${getValue(node, depth, 'old')}\n${getIndent(node, depth, 'added')}${getKey(node)}: ${getValue(node, depth, 'new')}`;
-        return expression;
+        return `${getIndent(node, depth, 'removed')}${getKey(node)}: ${getValue(node, 'old', depth)}\n${getIndent(node, depth, 'added')}${getKey(node)}: ${getValue(node, 'new', depth)}`;
       }
 
       if (getType(node) === 'unchanged') {
-        const expression = `${getIndent(node, depth)}${getKey(node)}: ${getValue(node, depth, 'common')}`;
-        return expression;
+        return `${getIndent(node, depth)}${getKey(node)}: ${getValue(node, 'common', depth)}`;
       }
       return node;
     });

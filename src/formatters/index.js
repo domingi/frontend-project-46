@@ -9,8 +9,9 @@ const formatter = (diffTree, formatName) => {
     case 'json':
       return makeJson(diffTree);
     case 'stylish':
-    default:
       return makeStylish(diffTree);
+    default:
+      throw new Error(`Undefined format type ${formatName}`);
   }
 };
 

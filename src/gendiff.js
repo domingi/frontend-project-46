@@ -6,37 +6,32 @@ const genDiffTree = (obj1, obj2) => {
 
   const diff = keys.map((key) => {
     if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
-      const node = {
+      return {
         type: 'unchanged', key, children: genDiffTree(obj1[key], obj2[key]),
       };
-      return node;
     }
 
     if (!_.has(obj1, key) && _.has(obj2, key)) {
-      const leaf = {
+      return {
         type: 'added', key, value: obj2[key],
       };
-      return leaf;
     }
 
     if (_.has(obj1, key) && !_.has(obj2, key)) {
-      const leaf = {
+      return {
         type: 'removed', key, value: obj1[key],
       };
-      return leaf;
     }
 
     if (obj1[key] === obj2[key]) {
-      const leaf = {
+      return {
         type: 'unchanged', key, value: obj1[key],
       };
-      return leaf;
     }
 
-    const leaf = {
+    return {
       type: 'modified', key, oldValue: obj1[key], newValue: obj2[key],
     };
-    return leaf;
   });
 
   return diff;
